@@ -1,3 +1,5 @@
+using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -26,6 +28,8 @@ namespace RenosFriendsList.API
             {
                 setupAction.ReturnHttpNotAcceptable = true;
             }).AddXmlDataContractSerializerFormatters();
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // services
             services.AddScoped<IOwnerRepository, OwnerRepository>();

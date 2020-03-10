@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using RenosFriendsList.API.Entities;
+using RenosFriendsList.API.Models;
 using RenosFriendsList.API.Services;
 
 namespace RenosFriendsList.API.Controllers
@@ -8,21 +12,24 @@ namespace RenosFriendsList.API.Controllers
     public class OwnersController : ControllerBase
     {
         private readonly IOwnerRepository _ownerRepository;
+        private readonly IMapper _mapper;
 
-        public OwnersController(IOwnerRepository ownerRepository)
+        public OwnersController(IOwnerRepository ownerRepository,
+            IMapper mapper)
         {
             _ownerRepository = ownerRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public IActionResult GetOwners()
+        public ActionResult<IEnumerable<Owner>> GetOwners()
         {
             var ownersFromRepo = _ownerRepository.GetOwners();
-            return Ok(ownersFromRepo);
+            return Ok(_mapper.Map<IEnumerable<OwnerDto>>(ownersFromRepo));
         }
 
         [HttpGet("{ownerId}")]
-        public IActionResult GetOwner(int ownerId)
+        public ActionResult<Owner> GetOwner(int ownerId)
         {
             var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
 
@@ -31,7 +38,7 @@ namespace RenosFriendsList.API.Controllers
                 return NotFound();
             }
 
-            return Ok(ownerFromRepo);
+            return Ok(_mapper.Map<OwnerDto>(ownerFromRepo));
         }
     }
 }
