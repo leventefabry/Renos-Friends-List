@@ -7,15 +7,15 @@ using RenosFriendsList.API.Services;
 
 namespace RenosFriendsList.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class OwnersController : ControllerBase
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IMapper _mapper;
 
         public OwnersController(IOwnerRepository ownerRepository,
-            IMapper mapper)
+                                IMapper mapper)
         {
             _ownerRepository = ownerRepository;
             _mapper = mapper;
