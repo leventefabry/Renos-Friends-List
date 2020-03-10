@@ -22,6 +22,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         public ActionResult<IEnumerable<Owner>> GetOwners()
         {
             var ownersFromRepo = _ownerRepository.GetOwners();
