@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "Balint",
+    "Description": "Tall guy with glasses",
+    "Dogs": [
+      {
+        "Name": "Piskota",
+        "RenoLikesIt": true,
+        "Gender": 1,
+        "BodyType": 1
+      }
+    ]
+  },
+  {
+    "Name": "Maria",
+    "Description": "Lovely woman",
+    "Dogs": [
+      {
+        "Name": "Nati",
+        "RenoLikesIt": true,
+        "Gender": 2,
+        "BodyType": 1,
+        "DateOfBirth": "2019-06-30"
+      }
+    ]
+  },
+  {
+    "Name": "Pista",
+    "Description": "Elderly man",
+    "Dogs": [
+      {
+        "Name": "Rex",
+        "RenoLikesIt": false,
+        "Gender": 1,
+        "BodyType": 3
+      },
+      {
+        "Name": "Brutus",
+        "RenoLikesIt": false,
+        "Gender": 1,
+        "BodyType": 2
+      }
+    ]
+  }
+]
