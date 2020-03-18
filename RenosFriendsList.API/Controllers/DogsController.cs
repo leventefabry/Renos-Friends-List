@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Models;
 using RenosFriendsList.API.Services;
 
@@ -35,7 +36,7 @@ namespace RenosFriendsList.API.Controllers
             return Ok(_mapper.Map<IEnumerable<DogDto>>(dogsForOwnerFromRepo));
         }
 
-        [HttpGet("{dogId}")]
+        [HttpGet("{dogId}", Name = "GetDogForOwner")]
         public ActionResult<DogDto> GetDogForOwner(int ownerId, int dogId)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -50,6 +51,21 @@ namespace RenosFriendsList.API.Controllers
             }
 
             return Ok(_mapper.Map<DogDto>(dogForOwnerFromRepo));
+        }
+
+        [HttpPost]
+        public ActionResult<DogDto> CreateDogForOwner(int ownerId, DogForCreationDto dog)
+        {
+            if (!_ownerRepository.OwnerExists(ownerId))
+            {
+                return NotFound();
+            }
+
+            var dogEntity = _mapper.Map<Dog>(dog);
+            _dogRepository.AddDog(ownerId, dogEntity);
+
+            var dogToReturn = _mapper.Map<DogDto>(dogEntity);
+            return CreatedAtRoute("GetDogForOwner", new {ownerId = ownerId, dogId = dogToReturn.Id}, dogToReturn);
         }
     }
 }

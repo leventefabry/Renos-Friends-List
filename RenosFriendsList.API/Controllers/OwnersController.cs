@@ -30,7 +30,7 @@ namespace RenosFriendsList.API.Controllers
             return Ok(_mapper.Map<IEnumerable<OwnerDto>>(ownersFromRepo));
         }
 
-        [HttpGet("{ownerId}")]
+        [HttpGet("{ownerId}", Name = "GetOwner")]
         public ActionResult<Owner> GetOwner(int ownerId)
         {
             var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
@@ -41,6 +41,21 @@ namespace RenosFriendsList.API.Controllers
             }
 
             return Ok(_mapper.Map<OwnerDto>(ownerFromRepo));
+        }
+
+        [HttpPost]
+        public ActionResult<OwnerDto> CreateOwner(OwnerForCreationDto owner)
+        {
+            if (owner == null)
+            {
+                return BadRequest();
+            }
+
+            var ownerEntity = _mapper.Map<Owner>(owner);
+            _ownerRepository.AddOwner(ownerEntity);
+
+            var ownerToReturn = _mapper.Map<OwnerDto>(ownerEntity);
+            return CreatedAtRoute("GetOwner", new { ownerId = ownerToReturn.Id } ,ownerToReturn);
         }
     }
 }

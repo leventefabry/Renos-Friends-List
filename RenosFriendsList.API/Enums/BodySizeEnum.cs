@@ -8,7 +8,7 @@ namespace RenosFriendsList.API.Enums
     public enum BodySizeEnum
     {
         [EnumMember(Value = "Small")]
-        SmallDog = 1,
+        Small = 1,
 
         [EnumMember(Value = "Medium")]
         Medium = 2,

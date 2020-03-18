@@ -9,6 +9,7 @@ namespace RenosFriendsList.API.Profiles
         public OwnersProfile()
         {
             CreateMap<Owner, OwnerDto>();
+            CreateMap<OwnerForCreationDto, Owner>();
         }
     }
 }

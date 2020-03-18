@@ -11,6 +11,8 @@ namespace RenosFriendsList.API.Profiles
         {
             CreateMap<Dog, DogDto>()
                 .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.GetCurrentAge()));
+
+            CreateMap<DogForCreationDto, Dog>();
         }
     }
 }
