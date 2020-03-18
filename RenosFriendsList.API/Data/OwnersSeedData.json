@@ -41,5 +41,17 @@
         "BodyType": 2
       }
     ]
+  },
+  {
+    "Name": "Panka",
+    "Description": "Girl with glasses",
+    "Dogs": [
+      {
+        "Name": "Hero",
+        "RenoLikesIt": true,
+        "Gender": 2,
+        "BodyType": 3
+      }
+    ]
   }
 ]

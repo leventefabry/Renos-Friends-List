@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RenosFriendsList.API.Data;
 using RenosFriendsList.API.Entities;
+using RenosFriendsList.API.ResourceParameters;
 
 namespace RenosFriendsList.API.Services
 {
@@ -18,6 +19,35 @@ namespace RenosFriendsList.API.Services
         public IEnumerable<Owner> GetOwners()
         {
             return _context.Owners.OrderBy(o => o.Name).ToList();
+        }
+
+        public IEnumerable<Owner> GetOwners(OwnersResourceParameters parameters)
+        {
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (string.IsNullOrWhiteSpace(parameters.Name) && string.IsNullOrWhiteSpace(parameters.Description))
+            {
+                GetOwners();
+            }
+
+            var collection = _context.Owners as IQueryable<Owner>;
+
+            if (!string.IsNullOrWhiteSpace(parameters.Name))
+            {
+                var name = parameters.Name.ToLower().Trim();
+                collection = collection.Where(o => o.Name.ToLower().Contains(name));
+            }
+
+            if(!string.IsNullOrWhiteSpace(parameters.Description))
+            {
+                var description = parameters.Description.ToLower().Trim();
+                collection = collection.Where(o => o.Description.ToLower().Contains(description));
+            }
+
+            return collection.OrderBy(o => o.Name).ToList();
         }
 
         public IEnumerable<Owner> GetOwners(IEnumerable<int> ownerIds)

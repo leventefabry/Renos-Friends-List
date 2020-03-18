@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Models;
+using RenosFriendsList.API.ResourceParameters;
 using RenosFriendsList.API.Services;
 
 namespace RenosFriendsList.API.Controllers
@@ -23,9 +24,9 @@ namespace RenosFriendsList.API.Controllers
 
         [HttpGet]
         [HttpHead]
-        public ActionResult<IEnumerable<Owner>> GetOwners()
+        public ActionResult<IEnumerable<Owner>> GetOwners([FromQuery] OwnersResourceParameters parameters)
         {
-            var ownersFromRepo = _ownerRepository.GetOwners();
+            var ownersFromRepo = _ownerRepository.GetOwners(parameters);
             return Ok(_mapper.Map<IEnumerable<OwnerDto>>(ownersFromRepo));
         }
 
