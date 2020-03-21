@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using RenosFriendsList.API.Data;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.ResourceParameters;
@@ -18,7 +19,7 @@ namespace RenosFriendsList.API.Services
 
         public IEnumerable<Owner> GetOwners()
         {
-            return _context.Owners.OrderBy(o => o.Name).ToList();
+            return _context.Owners.Include(o => o.Dogs).OrderBy(o => o.Name).ToList();
         }
 
         public IEnumerable<Owner> GetOwners(OwnersResourceParameters parameters)
@@ -41,13 +42,13 @@ namespace RenosFriendsList.API.Services
                 collection = collection.Where(o => o.Name.ToLower().Contains(name));
             }
 
-            if(!string.IsNullOrWhiteSpace(parameters.Description))
+            if (!string.IsNullOrWhiteSpace(parameters.Description))
             {
                 var description = parameters.Description.ToLower().Trim();
                 collection = collection.Where(o => o.Description.ToLower().Contains(description));
             }
 
-            return collection.OrderBy(o => o.Name).ToList();
+            return collection.Include(o => o.Dogs).OrderBy(o => o.Name).ToList();
         }
 
         public IEnumerable<Owner> GetOwners(IEnumerable<int> ownerIds)
@@ -58,6 +59,7 @@ namespace RenosFriendsList.API.Services
             }
 
             return _context.Owners.Where(o => ownerIds.Contains(o.Id))
+                .Include(o => o.Dogs)
                 .OrderBy(o => o.Name)
                 .ToList();
         }
@@ -69,7 +71,7 @@ namespace RenosFriendsList.API.Services
                 throw new ArgumentNullException(nameof(ownerId));
             }
 
-            return _context.Owners.FirstOrDefault(o => o.Id == ownerId);
+            return _context.Owners.Include(o => o.Dogs).FirstOrDefault(o => o.Id == ownerId);
         }
 
         public bool OwnerExists(int ownerId)
