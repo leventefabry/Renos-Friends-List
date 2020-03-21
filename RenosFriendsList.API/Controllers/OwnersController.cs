@@ -57,5 +57,12 @@ namespace RenosFriendsList.API.Controllers
             var ownerToReturn = _mapper.Map<OwnerDto>(ownerEntity);
             return CreatedAtRoute("GetOwner", new { ownerId = ownerToReturn.Id } ,ownerToReturn);
         }
+
+        [HttpOptions]
+        public IActionResult GetOwnersOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            return Ok();
+        }
     }
 }
