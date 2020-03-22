@@ -14,6 +14,7 @@ namespace RenosFriendsList.API.Profiles
 
             CreateMap<DogForCreationDto, Dog>();
             CreateMap<DogForUpdateDto, Dog>();
+            CreateMap<Dog, DogForUpdateDto>();
         }
     }
 }

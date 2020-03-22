@@ -64,5 +64,19 @@ namespace RenosFriendsList.API.Controllers
             Response.Headers.Add("Allow", "GET,OPTIONS,POST");
             return Ok();
         }
+
+        [HttpDelete("{ownerId}")]
+        public ActionResult DeleteOwner(int ownerId)
+        {
+            var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
+
+            if (ownerFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _ownerRepository.DeleteOwner(ownerFromRepo);
+            return NoContent();
+        }
     }
 }
