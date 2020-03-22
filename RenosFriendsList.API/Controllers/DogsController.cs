@@ -67,5 +67,24 @@ namespace RenosFriendsList.API.Controllers
             var dogToReturn = _mapper.Map<DogDto>(dogEntity);
             return CreatedAtRoute("GetDogForOwner", new {ownerId = ownerId, dogId = dogToReturn.Id}, dogToReturn);
         }
+
+        [HttpPut("{dogId}")]
+        public ActionResult UpdateDogForOwner(int ownerId, int dogId, DogForUpdateDto dog)
+        {
+            if (!_ownerRepository.OwnerExists(ownerId))
+            {
+                return NotFound();
+            }
+
+            var dogFromRepo = _dogRepository.GetDog(ownerId, dogId);
+            if (dogFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(dog, dogFromRepo);
+            _dogRepository.UpdateDog(dogFromRepo);
+            return NoContent();
+        }
     }
 }
