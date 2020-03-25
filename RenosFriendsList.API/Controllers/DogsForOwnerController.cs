@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RenosFriendsList.API.Entities;
-using RenosFriendsList.API.Models;
+using RenosFriendsList.API.Models.Dog;
 using RenosFriendsList.API.Services;
 
 namespace RenosFriendsList.API.Controllers

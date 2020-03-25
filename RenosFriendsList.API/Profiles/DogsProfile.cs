@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RenosFriendsList.API.Entities;
-using RenosFriendsList.API.Models;
 using RenosFriendsList.API.Helpers;
+using RenosFriendsList.API.Models.Dog;
 
 namespace RenosFriendsList.API.Profiles
 {

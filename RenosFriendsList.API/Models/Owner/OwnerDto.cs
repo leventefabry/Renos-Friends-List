@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using RenosFriendsList.API.Models.Dog;
 
-namespace RenosFriendsList.API.Models
+namespace RenosFriendsList.API.Models.Owner
 {
     public class OwnerDto
     {

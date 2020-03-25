@@ -2,7 +2,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RenosFriendsList.API.Entities;
-using RenosFriendsList.API.Models;
+using RenosFriendsList.API.Models.Owner;
 using RenosFriendsList.API.ResourceParameters;
 using RenosFriendsList.API.Services;
 
@@ -56,6 +56,20 @@ namespace RenosFriendsList.API.Controllers
 
             var ownerToReturn = _mapper.Map<OwnerDto>(ownerEntity);
             return CreatedAtRoute("GetOwner", new { ownerId = ownerToReturn.Id } ,ownerToReturn);
+        }
+
+        [HttpPut("{ownerId}")]
+        public ActionResult UpdateOwner(int ownerId, OwnerForUpdateDto owner)
+        {
+            var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
+            if (ownerFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(owner, ownerFromRepo);
+            _ownerRepository.UpdateOwner(ownerFromRepo);
+            return NoContent();
         }
 
         [HttpOptions]

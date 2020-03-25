@@ -1,6 +1,6 @@
 ﻿using RenosFriendsList.API.Enums;
 
-namespace RenosFriendsList.API.Models
+namespace RenosFriendsList.API.Models.Dog
 {
     public class DogDto
     {

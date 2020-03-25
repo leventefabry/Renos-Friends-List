@@ -4,7 +4,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Helpers;
-using RenosFriendsList.API.Models;
+using RenosFriendsList.API.Models.Owner;
 using RenosFriendsList.API.Services;
 
 namespace RenosFriendsList.API.Controllers

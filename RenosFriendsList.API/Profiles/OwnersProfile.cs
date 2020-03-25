@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using RenosFriendsList.API.Entities;
-using RenosFriendsList.API.Models;
+using RenosFriendsList.API.Models.Owner;
 
 namespace RenosFriendsList.API.Profiles
 {
@@ -10,6 +10,8 @@ namespace RenosFriendsList.API.Profiles
         {
             CreateMap<Owner, OwnerDto>();
             CreateMap<OwnerForCreationDto, Owner>();
+            CreateMap<OwnerForUpdateDto, Owner>();
+            CreateMap<Owner, OwnerForUpdateDto>();
         }
     }
 }

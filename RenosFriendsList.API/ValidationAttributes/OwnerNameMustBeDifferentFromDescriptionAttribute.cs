@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using RenosFriendsList.API.Models;
+using RenosFriendsList.API.Models.Owner;
 
 namespace RenosFriendsList.API.ValidationAttributes
 {
@@ -7,12 +7,11 @@ namespace RenosFriendsList.API.ValidationAttributes
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var owner = (OwnerForCreationDto) validationContext.ObjectInstance;
+            var owner = (OwnerForManipulationDto)validationContext.ObjectInstance;
 
             if (owner.Name == owner.Description)
             {
-                return new ValidationResult("The provided name should be different from the description",
-                    new[] { nameof(OwnerForCreationDto) });
+                return new ValidationResult(ErrorMessage, new[] { nameof(OwnerForManipulationDto) });
             }
 
             return ValidationResult.Success;

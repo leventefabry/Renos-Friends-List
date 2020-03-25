@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 using RenosFriendsList.API.Enums;
-using RenosFriendsList.API.ValidationAttributes;
 
-namespace RenosFriendsList.API.Models
+namespace RenosFriendsList.API.Models.Dog
 {
     public abstract class DogForManipulationDto
     {
