@@ -39,13 +39,13 @@ namespace RenosFriendsList.API.Services
             if (!string.IsNullOrWhiteSpace(parameters.Name))
             {
                 var name = parameters.Name.ToLower().Trim();
-                collection = collection.Where(o => o.Name.ToLower().Contains(name));
+                collection = collection.Where(o => o.Name.ToLower().Contains(name.ToLower()));
             }
 
             if (!string.IsNullOrWhiteSpace(parameters.Description))
             {
                 var description = parameters.Description.ToLower().Trim();
-                collection = collection.Where(o => o.Description.ToLower().Contains(description));
+                collection = collection.Where(o => o.Description.ToLower().Contains(description.ToLower()));
             }
 
             return collection.Include(o => o.Dogs).OrderBy(o => o.Name).ToList();

@@ -14,13 +14,13 @@ namespace RenosFriendsList.API.Controllers
 {
     [ApiController]
     [Route("api/owners/{ownerId}/dogs")]
-    public class DogsController : ControllerBase
+    public class DogsForOwnerController : ControllerBase
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IDogRepository _dogRepository;
         private readonly IMapper _mapper;
 
-        public DogsController(IOwnerRepository ownerRepository,
+        public DogsForOwnerController(IOwnerRepository ownerRepository,
                               IDogRepository dogRepository,
                               IMapper mapper)
         {
