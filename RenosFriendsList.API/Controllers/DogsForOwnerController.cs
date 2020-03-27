@@ -14,7 +14,7 @@ namespace RenosFriendsList.API.Controllers
 {
     [ApiController]
     [Route("api/owners/{ownerId}/dogs")]
-    public class DogsForOwnerController : ControllerBase
+    public class DogsForOwnerController : ApiControllerBase
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IDogRepository _dogRepository;
@@ -136,14 +136,6 @@ namespace RenosFriendsList.API.Controllers
 
             _dogRepository.DeleteDog(dogFromRepo);
             return NoContent();
-        }
-
-        public override ActionResult ValidationProblem(
-            [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
-        {
-            var options = HttpContext.RequestServices
-                .GetRequiredService<IOptions<ApiBehaviorOptions>>();
-            return (ActionResult)options.Value.InvalidModelStateResponseFactory(ControllerContext);
         }
     }
 }

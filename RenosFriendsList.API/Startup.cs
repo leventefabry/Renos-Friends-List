@@ -43,7 +43,7 @@ namespace RenosFriendsList.API
                     {
                         var problemDetails = new ValidationProblemDetails(context.ModelState)
                         {
-                            Type = "https://courselibrary.com/modelvalidationproblem",
+                            //Type = "https://courselibrary.com/modelvalidationproblem",
                             Title = "One or more model validation errors occurred.",
                             Status = StatusCodes.Status422UnprocessableEntity,
                             Detail = "See the errors property for details.",

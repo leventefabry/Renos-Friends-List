@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Models.Owner;
@@ -10,7 +11,7 @@ namespace RenosFriendsList.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OwnersController : ControllerBase
+    public class OwnersController : ApiControllerBase
     {
         private readonly IOwnerRepository _ownerRepository;
         private readonly IMapper _mapper;
@@ -72,10 +73,32 @@ namespace RenosFriendsList.API.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{ownerId}")]
+        public ActionResult PartiallyUpdateOwner(int ownerId, JsonPatchDocument<OwnerForUpdateDto> patchDocument)
+        {
+            var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
+            if (ownerFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            var ownerToPatch = _mapper.Map<OwnerForUpdateDto>(ownerFromRepo);
+            patchDocument.ApplyTo(ownerToPatch, ModelState);
+
+            if (!TryValidateModel(ownerToPatch))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(ownerToPatch, ownerFromRepo);
+            _ownerRepository.UpdateOwner(ownerFromRepo);
+            return NoContent();
+        }
+
         [HttpOptions]
         public IActionResult GetOwnersOptions()
         {
-            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST,PUT");
             return Ok();
         }
 
