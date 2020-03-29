@@ -23,14 +23,15 @@ namespace RenosFriendsList.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
         [HttpHead]
+        [HttpGet]
         public ActionResult<IEnumerable<Owner>> GetOwners([FromQuery] OwnersResourceParameters parameters)
         {
             var ownersFromRepo = _ownerRepository.GetOwners(parameters);
             return Ok(_mapper.Map<IEnumerable<OwnerDto>>(ownersFromRepo));
         }
 
+        [HttpHead]
         [HttpGet("{ownerId}", Name = "GetOwner")]
         public ActionResult<Owner> GetOwner(int ownerId)
         {
@@ -60,7 +61,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpPut("{ownerId}")]
-        public ActionResult UpdateOwner(int ownerId, OwnerForUpdateDto owner)
+        public IActionResult UpdateOwner(int ownerId, OwnerForUpdateDto owner)
         {
             var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
             if (ownerFromRepo == null)
@@ -74,7 +75,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpPatch("{ownerId}")]
-        public ActionResult PartiallyUpdateOwner(int ownerId, JsonPatchDocument<OwnerForUpdateDto> patchDocument)
+        public IActionResult PartiallyUpdateOwner(int ownerId, JsonPatchDocument<OwnerForUpdateDto> patchDocument)
         {
             var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
             if (ownerFromRepo == null)
@@ -98,12 +99,12 @@ namespace RenosFriendsList.API.Controllers
         [HttpOptions]
         public IActionResult GetOwnersOptions()
         {
-            Response.Headers.Add("Allow", "GET,OPTIONS,POST,PUT");
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST,PUT,PATCH,DELETE");
             return Ok();
         }
 
         [HttpDelete("{ownerId}")]
-        public ActionResult DeleteOwner(int ownerId)
+        public IActionResult DeleteOwner(int ownerId)
         {
             var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
 
