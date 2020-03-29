@@ -2,10 +2,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Models.Dog;
 using RenosFriendsList.API.Services;
@@ -29,6 +25,7 @@ namespace RenosFriendsList.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpHead]
         [HttpGet]
         public ActionResult<IEnumerable<DogDto>> GetDogsForOwner(int ownerId)
         {
@@ -41,6 +38,7 @@ namespace RenosFriendsList.API.Controllers
             return Ok(_mapper.Map<IEnumerable<DogDto>>(dogsForOwnerFromRepo));
         }
 
+        [HttpHead]
         [HttpGet("{dogId}", Name = "GetDogForOwner")]
         public ActionResult<DogDto> GetDogForOwner(int ownerId, int dogId)
         {
@@ -74,7 +72,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpPut("{dogId}")]
-        public ActionResult UpdateDogForOwner(int ownerId, int dogId, DogForUpdateDto dog)
+        public IActionResult UpdateDogForOwner(int ownerId, int dogId, DogForUpdateDto dog)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
             {
@@ -93,7 +91,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpPatch("{dogId}")]
-        public ActionResult PartiallyUpdateDogForOwner(int ownerId, int dogId,
+        public IActionResult PartiallyUpdateDogForOwner(int ownerId, int dogId,
             JsonPatchDocument<DogForUpdateDto> patchDocument)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -120,8 +118,15 @@ namespace RenosFriendsList.API.Controllers
             return NoContent();
         }
 
+        [HttpOptions]
+        public IActionResult GetDogsForOwnerOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST,PUT,PATCH,DELETE");
+            return Ok();
+        }
+
         [HttpDelete("{dogId}")]
-        public ActionResult DeleteDogForOwner(int ownerId, int dogId)
+        public IActionResult DeleteDogForOwner(int ownerId, int dogId)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
             {
