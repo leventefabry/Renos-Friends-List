@@ -47,7 +47,7 @@ namespace RenosFriendsList.API.Controllers
                 return NotFound();
             }
 
-            var dogForOwnerFromRepo = _dogRepository.GetDog(ownerId, dogId);
+            var dogForOwnerFromRepo = _dogRepository.GetDogByOwner(ownerId, dogId);
             if (dogForOwnerFromRepo == null)
             {
                 return NotFound();
@@ -79,7 +79,7 @@ namespace RenosFriendsList.API.Controllers
                 return NotFound();
             }
 
-            var dogFromRepo = _dogRepository.GetDog(ownerId, dogId);
+            var dogFromRepo = _dogRepository.GetDogByOwner(ownerId, dogId);
             if (dogFromRepo == null)
             {
                 return NotFound();
@@ -99,7 +99,7 @@ namespace RenosFriendsList.API.Controllers
                 return NotFound();
             }
 
-            var dogFromRepo = _dogRepository.GetDog(ownerId, dogId);
+            var dogFromRepo = _dogRepository.GetDogByOwner(ownerId, dogId);
             if (dogFromRepo == null)
             {
                 return NotFound();
@@ -133,7 +133,7 @@ namespace RenosFriendsList.API.Controllers
                 return NotFound();
             }
 
-            var dogFromRepo = _dogRepository.GetDog(ownerId, dogId);
+            var dogFromRepo = _dogRepository.GetDogByOwner(ownerId, dogId);
             if (dogFromRepo == null)
             {
                 return NotFound();

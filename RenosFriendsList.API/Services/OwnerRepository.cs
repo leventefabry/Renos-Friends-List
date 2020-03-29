@@ -39,7 +39,7 @@ namespace RenosFriendsList.API.Services
             if (!string.IsNullOrWhiteSpace(parameters.Name))
             {
                 var name = parameters.Name.ToLower().Trim();
-                collection = collection.Where(o => o.Name.ToLower().Contains(name.ToLower()));
+                collection = collection.Where(o => o.Name.ToLower().Contains(name));
             }
 
             if (!string.IsNullOrWhiteSpace(parameters.Description))

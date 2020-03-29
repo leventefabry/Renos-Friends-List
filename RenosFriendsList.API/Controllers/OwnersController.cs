@@ -25,7 +25,7 @@ namespace RenosFriendsList.API.Controllers
 
         [HttpHead]
         [HttpGet]
-        public ActionResult<IEnumerable<Owner>> GetOwners([FromQuery] OwnersResourceParameters parameters)
+        public ActionResult<IEnumerable<OwnerDto>> GetOwners([FromQuery] OwnersResourceParameters parameters)
         {
             var ownersFromRepo = _ownerRepository.GetOwners(parameters);
             return Ok(_mapper.Map<IEnumerable<OwnerDto>>(ownersFromRepo));
@@ -33,7 +33,7 @@ namespace RenosFriendsList.API.Controllers
 
         [HttpHead]
         [HttpGet("{ownerId}", Name = "GetOwner")]
-        public ActionResult<Owner> GetOwner(int ownerId)
+        public ActionResult<OwnerDto> GetOwner(int ownerId)
         {
             var ownerFromRepo = _ownerRepository.GetOwner(ownerId);
 
