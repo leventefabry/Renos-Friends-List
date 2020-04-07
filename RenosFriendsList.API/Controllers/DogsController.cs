@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using RenosFriendsList.API.Helpers;
 using RenosFriendsList.API.Models.Dog;
 using RenosFriendsList.API.ResourceParameters;
 using RenosFriendsList.API.Services;
@@ -22,10 +24,22 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpHead]
-        [HttpGet]
+        [HttpGet(Name = "GetDogs")]
         public ActionResult<IEnumerable<DogDto>> GetDogs([FromQuery]DogsResourceParameters parameters)
         {
             var dogsFromRepo = _dogRepository.GetAllDogs(parameters);
+
+            var previousPageLink = dogsFromRepo.HasPrevious
+                ? CreateDogsResourceUri(parameters, ResourceUriType.PreviousPage)
+                : null;
+
+            var nextPageLink = dogsFromRepo.HasNext
+                ? CreateDogsResourceUri(parameters, ResourceUriType.NextPage)
+                : null;
+
+            Response.AddPagination(dogsFromRepo.TotalCount, dogsFromRepo.PageSize, dogsFromRepo.CurrentPage,
+                dogsFromRepo.TotalPages, previousPageLink, nextPageLink);
+
             return Ok(_mapper.Map<IEnumerable<DogDto>>(dogsFromRepo));
         }
 
@@ -47,6 +61,43 @@ namespace RenosFriendsList.API.Controllers
         {
             Response.Headers.Add("Allow", "GET,OPTIONS,HEAD");
             return Ok();
+        }
+
+        private string CreateDogsResourceUri(DogsResourceParameters parameters, ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetDogs", new
+                    {
+                        pageNumber = parameters.PageNumber - 1,
+                        pageSize = parameters.PageSize,
+                        name = parameters.Name,
+                        renoLikesIt = parameters.RenoLikesIt,
+                        bodyType = parameters.BodyType,
+                        gender = parameters.Gender
+                    });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetDogs", new
+                    {
+                        pageNumber = parameters.PageNumber + 1,
+                        pageSize = parameters.PageSize,
+                        name = parameters.Name,
+                        renoLikesIt = parameters.RenoLikesIt,
+                        bodyType = parameters.BodyType,
+                        gender = parameters.Gender
+                    });
+                default:
+                    return Url.Link("GetDogs", new
+                    {
+                        pageNumber = parameters.PageNumber,
+                        pageSize = parameters.PageSize,
+                        name = parameters.Name,
+                        renoLikesIt = parameters.RenoLikesIt,
+                        bodyType = parameters.BodyType,
+                        gender = parameters.Gender
+                    });
+            }
         }
     }
 }

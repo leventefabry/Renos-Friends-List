@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RenosFriendsList.API.Data;
 using RenosFriendsList.API.Entities;
+using RenosFriendsList.API.Helpers;
 using RenosFriendsList.API.ResourceParameters;
 
 namespace RenosFriendsList.API.Services
@@ -26,22 +27,11 @@ namespace RenosFriendsList.API.Services
             return _context.Dogs.Where(d => d.OwnerId == ownerId).OrderBy(d => d.Name).ToList();
         }
 
-        public IEnumerable<Dog> GetAllDogs()
-        {
-            return _context.Dogs.OrderBy(d => d.Name).ToList();
-        }
-
-        public IEnumerable<Dog> GetAllDogs(DogsResourceParameters parameters)
+        public PagedList<Dog> GetAllDogs(DogsResourceParameters parameters)
         {
             if (parameters == null)
             {
                 throw new ArgumentNullException(nameof(parameters));
-            }
-
-            if (string.IsNullOrWhiteSpace(parameters.Name) && !parameters.RenoLikesIt.HasValue &&
-                !parameters.BodyType.HasValue && !parameters.Gender.HasValue)
-            {
-                GetAllDogs();
             }
 
             var collection = _context.Dogs as IQueryable<Dog>;
@@ -67,7 +57,10 @@ namespace RenosFriendsList.API.Services
                 collection = collection.Where(d => d.Gender == parameters.Gender);
             }
 
-            return collection.OrderBy(d => d.Name).ToList();
+            return PagedList<Dog>.Create(
+                collection.OrderBy(d => d.Name),
+                    parameters.PageNumber,
+                    parameters.PageSize);
         }
 
         public Dog GetDogByOwner(int ownerId, int dogId)
