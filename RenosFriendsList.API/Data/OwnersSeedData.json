@@ -53,5 +53,23 @@
         "BodyType": 3
       }
     ]
+  },
+  {
+    "Name": "Lazlo",
+    "Description": "Middle aged men",
+    "Dogs": [
+      {
+        "Name": "Athos",
+        "RenoLikesIt": false,
+        "Gender": 1,
+        "BodyType": 1
+      },
+      {
+        "Name": "Zebulon",
+        "RenoLikesIt": false,
+        "Gender": 2,
+        "BodyType": 1
+      }
+    ] 
   }
 ]

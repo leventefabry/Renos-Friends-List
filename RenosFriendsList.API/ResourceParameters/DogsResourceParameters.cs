@@ -8,5 +8,7 @@ namespace RenosFriendsList.API.ResourceParameters
         public bool? RenoLikesIt { get; set; }
         public BodySizeEnum? BodyType { get; set; }
         public GenderEnum? Gender { get; set; }
+
+        public string OrderBy { get; set; } = "Name";
     }
 }

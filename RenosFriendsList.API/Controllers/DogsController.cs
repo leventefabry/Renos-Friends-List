@@ -2,10 +2,12 @@
 using System.Text.RegularExpressions;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Helpers;
 using RenosFriendsList.API.Models.Dog;
 using RenosFriendsList.API.ResourceParameters;
 using RenosFriendsList.API.Services;
+using RenosFriendsList.API.Services.PropertyMapping;
 
 namespace RenosFriendsList.API.Controllers
 {
@@ -15,18 +17,26 @@ namespace RenosFriendsList.API.Controllers
     {
         private readonly IDogRepository _dogRepository;
         private readonly IMapper _mapper;
+        private readonly IPropertyMappingService _propertyMappingService;
 
         public DogsController(IDogRepository dogRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IPropertyMappingService propertyMappingService)
         {
             _dogRepository = dogRepository;
             _mapper = mapper;
+            _propertyMappingService = propertyMappingService;
         }
 
         [HttpHead]
         [HttpGet(Name = "GetDogs")]
         public ActionResult<IEnumerable<DogDto>> GetDogs([FromQuery]DogsResourceParameters parameters)
         {
+            if (!_propertyMappingService.ValidMappingExistsFor<DogDto, Dog>(parameters.OrderBy))
+            {
+                return BadRequest();
+            }
+
             var dogsFromRepo = _dogRepository.GetAllDogs(parameters);
 
             var previousPageLink = dogsFromRepo.HasPrevious
@@ -70,6 +80,7 @@ namespace RenosFriendsList.API.Controllers
                 case ResourceUriType.PreviousPage:
                     return Url.Link("GetDogs", new
                     {
+                        orderBy = parameters.OrderBy,
                         pageNumber = parameters.PageNumber - 1,
                         pageSize = parameters.PageSize,
                         name = parameters.Name,
@@ -80,6 +91,7 @@ namespace RenosFriendsList.API.Controllers
                 case ResourceUriType.NextPage:
                     return Url.Link("GetDogs", new
                     {
+                        orderBy = parameters.OrderBy,
                         pageNumber = parameters.PageNumber + 1,
                         pageSize = parameters.PageSize,
                         name = parameters.Name,
@@ -90,6 +102,7 @@ namespace RenosFriendsList.API.Controllers
                 default:
                     return Url.Link("GetDogs", new
                     {
+                        orderBy = parameters.OrderBy,
                         pageNumber = parameters.PageNumber,
                         pageSize = parameters.PageSize,
                         name = parameters.Name,

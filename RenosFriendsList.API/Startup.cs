@@ -12,6 +12,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using RenosFriendsList.API.Data;
 using RenosFriendsList.API.Services;
+using RenosFriendsList.API.Services.PropertyMapping;
 
 namespace RenosFriendsList.API
 {
@@ -60,6 +61,9 @@ namespace RenosFriendsList.API
                 });
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            // register PropertyMappingService
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
             // services
             services.AddScoped<IOwnerRepository, OwnerRepository>();

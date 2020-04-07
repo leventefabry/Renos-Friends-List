@@ -4,17 +4,22 @@ using System.Linq;
 using RenosFriendsList.API.Data;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Helpers;
+using RenosFriendsList.API.Models.Dog;
 using RenosFriendsList.API.ResourceParameters;
+using RenosFriendsList.API.Services.PropertyMapping;
 
 namespace RenosFriendsList.API.Services
 {
     public class DogRepository : IDisposable, IDogRepository
     {
         private readonly RenosFriendsListContext _context;
+        private readonly IPropertyMappingService _propertyMappingService;
 
-        public DogRepository(RenosFriendsListContext context)
+        public DogRepository(RenosFriendsListContext context,
+            IPropertyMappingService propertyMappingService)
         {
             _context = context;
+            _propertyMappingService = propertyMappingService;
         }
 
         public IEnumerable<Dog> GetDogs(int ownerId)
@@ -57,8 +62,14 @@ namespace RenosFriendsList.API.Services
                 collection = collection.Where(d => d.Gender == parameters.Gender);
             }
 
+            if (!string.IsNullOrWhiteSpace(parameters.OrderBy))
+            {
+                var dogPropertyMappingDictionary = _propertyMappingService.GetPropertyMapping<DogDto, Dog>();
+                collection = collection.ApplySort(parameters.OrderBy, dogPropertyMappingDictionary);
+            }
+
             return PagedList<Dog>.Create(
-                collection.OrderBy(d => d.Name),
+                collection,
                     parameters.PageNumber,
                     parameters.PageSize);
         }
