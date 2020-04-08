@@ -8,14 +8,14 @@ namespace RenosFriendsList.API.Services.PropertyMapping
 {
     public class PropertyMappingService : IPropertyMappingService
     {
-        private Dictionary<string, PropertyMappingValue> _dogPropertyMapping = new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
+        private readonly Dictionary<string, PropertyMappingValue> _dogPropertyMapping = new Dictionary<string, PropertyMappingValue>(StringComparer.OrdinalIgnoreCase)
         {
             { "Name", new PropertyMappingValue(new List<string> { "Name" }) },
             { "BodyType", new PropertyMappingValue(new List<string> { "BodyType" }) },
             { "Gender", new PropertyMappingValue(new List<string> { "Gender" }) }
         };
 
-        private IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping>();
+        private readonly IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping>();
 
         public PropertyMappingService()
         {
@@ -43,7 +43,7 @@ namespace RenosFriendsList.API.Services.PropertyMapping
                 // remove everything after the first " " - if the fields 
                 // are coming from an orderBy string, this part must be 
                 // ignored
-                var indexOfFirstSpace = trimmedField.IndexOf(" ");
+                var indexOfFirstSpace = trimmedField.IndexOf(" ", StringComparison.Ordinal);
                 var propertyName = indexOfFirstSpace == -1 ?
                     trimmedField : trimmedField.Remove(indexOfFirstSpace);
 
