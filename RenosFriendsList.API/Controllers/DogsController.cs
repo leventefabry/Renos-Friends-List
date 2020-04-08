@@ -18,21 +18,29 @@ namespace RenosFriendsList.API.Controllers
         private readonly IDogRepository _dogRepository;
         private readonly IMapper _mapper;
         private readonly IPropertyMappingService _propertyMappingService;
+        private readonly IPropertyCheckerService _propertyCheckerService;
 
         public DogsController(IDogRepository dogRepository,
             IMapper mapper,
-            IPropertyMappingService propertyMappingService)
+            IPropertyMappingService propertyMappingService,
+            IPropertyCheckerService propertyCheckerService)
         {
             _dogRepository = dogRepository;
             _mapper = mapper;
             _propertyMappingService = propertyMappingService;
+            _propertyCheckerService = propertyCheckerService;
         }
 
         [HttpHead]
         [HttpGet(Name = "GetDogs")]
-        public ActionResult<IEnumerable<DogDto>> GetDogs([FromQuery]DogsResourceParameters parameters)
+        public IActionResult GetDogs([FromQuery]DogsResourceParameters parameters)
         {
             if (!_propertyMappingService.ValidMappingExistsFor<DogDto, Dog>(parameters.OrderBy))
+            {
+                return BadRequest();
+            }
+
+            if (!_propertyCheckerService.TypeHasProperties<DogDto>(parameters.Fields))
             {
                 return BadRequest();
             }
@@ -50,20 +58,25 @@ namespace RenosFriendsList.API.Controllers
             Response.AddPagination(dogsFromRepo.TotalCount, dogsFromRepo.PageSize, dogsFromRepo.CurrentPage,
                 dogsFromRepo.TotalPages, previousPageLink, nextPageLink);
 
-            return Ok(_mapper.Map<IEnumerable<DogDto>>(dogsFromRepo));
+            return Ok(_mapper.Map<IEnumerable<DogDto>>(dogsFromRepo).ShapeData(parameters.Fields));
         }
 
         [HttpHead]
         [HttpGet("{dogId}")]
-        public ActionResult<DogDto> GetDog(int dogId)
+        public ActionResult<DogDto> GetDog(int dogId, string fields)
         {
+            if (!_propertyCheckerService.TypeHasProperties<DogDto>(fields))
+            {
+                return BadRequest();
+            }
+
             var dogFromRepo = _dogRepository.GetDog(dogId);
             if (dogFromRepo == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<DogDto>(dogFromRepo));
+            return Ok(_mapper.Map<DogDto>(dogFromRepo).ShapeData(fields));
         }
 
         [HttpOptions]
@@ -80,6 +93,7 @@ namespace RenosFriendsList.API.Controllers
                 case ResourceUriType.PreviousPage:
                     return Url.Link("GetDogs", new
                     {
+                        fields = parameters.Fields,
                         orderBy = parameters.OrderBy,
                         pageNumber = parameters.PageNumber - 1,
                         pageSize = parameters.PageSize,
@@ -91,6 +105,7 @@ namespace RenosFriendsList.API.Controllers
                 case ResourceUriType.NextPage:
                     return Url.Link("GetDogs", new
                     {
+                        fields = parameters.Fields,
                         orderBy = parameters.OrderBy,
                         pageNumber = parameters.PageNumber + 1,
                         pageSize = parameters.PageSize,
@@ -102,6 +117,7 @@ namespace RenosFriendsList.API.Controllers
                 default:
                     return Url.Link("GetDogs", new
                     {
+                        fields = parameters.Fields,
                         orderBy = parameters.OrderBy,
                         pageNumber = parameters.PageNumber,
                         pageSize = parameters.PageSize,

@@ -65,6 +65,9 @@ namespace RenosFriendsList.API
             // register PropertyMappingService
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
+            // register PropertyCheckerService
+            services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();
+
             // services
             services.AddScoped<IOwnerRepository, OwnerRepository>();
             services.AddScoped<IDogRepository, DogRepository>();
