@@ -3,6 +3,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using RenosFriendsList.API.Entities;
+using RenosFriendsList.API.Helpers;
+using RenosFriendsList.API.Models;
 using RenosFriendsList.API.Models.Dog;
 using RenosFriendsList.API.Services;
 
@@ -26,7 +28,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpHead]
-        [HttpGet]
+        [HttpGet(Name = "GetDogsForOwner")]
         public ActionResult<IEnumerable<DogDto>> GetDogsForOwner(int ownerId)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -56,7 +58,7 @@ namespace RenosFriendsList.API.Controllers
             return Ok(_mapper.Map<DogDto>(dogForOwnerFromRepo));
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateDogForOwner")]
         public ActionResult<DogDto> CreateDogForOwner(int ownerId, DogForCreationDto dog)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -68,10 +70,14 @@ namespace RenosFriendsList.API.Controllers
             _dogRepository.AddDog(ownerId, dogEntity);
 
             var dogToReturn = _mapper.Map<DogDto>(dogEntity);
-            return CreatedAtRoute("GetDogForOwner", new {ownerId = ownerId, dogId = dogToReturn.Id}, dogToReturn);
+            var linkedResourceToReturn = GetLinkedResourceToReturn(dogToReturn);
+
+            return CreatedAtRoute("GetDogForOwner",
+                new { ownerId = linkedResourceToReturn["OwnerId"], dogId = linkedResourceToReturn["Id"] },
+                linkedResourceToReturn);
         }
 
-        [HttpPut("{dogId}")]
+        [HttpPut("{dogId}", Name = "UpdateDogForOwner")]
         public IActionResult UpdateDogForOwner(int ownerId, int dogId, DogForUpdateDto dog)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -90,7 +96,7 @@ namespace RenosFriendsList.API.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{dogId}")]
+        [HttpPatch("{dogId}", Name = "PartiallyUpdateDogForOwner")]
         public IActionResult PartiallyUpdateDogForOwner(int ownerId, int dogId,
             JsonPatchDocument<DogForUpdateDto> patchDocument)
         {
@@ -125,7 +131,7 @@ namespace RenosFriendsList.API.Controllers
             return Ok();
         }
 
-        [HttpDelete("{dogId}")]
+        [HttpDelete("{dogId}", Name = "DeleteDogForOwner")]
         public IActionResult DeleteDogForOwner(int ownerId, int dogId)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -141,6 +147,28 @@ namespace RenosFriendsList.API.Controllers
 
             _dogRepository.DeleteDog(dogFromRepo);
             return NoContent();
+        }
+
+        private IEnumerable<LinkDto> CreateLinksForDogForOwner(int dogId, int ownerId)
+        {
+            var links = new List<LinkDto>();
+            links.Add(new LinkDto(Url.Link("GetDogForOwner", new { ownerId, dogId }), "self", "GET"));
+            links.Add(new LinkDto(Url.Link("GetDogsForOwner", new { ownerId }), "get_dogs_for_owner", "GET"));
+            links.Add(new LinkDto(Url.Link("CreateDogForOwner", new { ownerId }), "create_dog_for_owner", "POST"));
+            links.Add(new LinkDto(Url.Link("UpdateDogForOwner", new { ownerId, dogId }), "update_dog_for_owner", "PUT"));
+            links.Add(new LinkDto(Url.Link("PartiallyUpdateDogForOwner", new { ownerId, dogId }), "partially_update_dog_for_owner", "PATCH"));
+            links.Add(new LinkDto(Url.Link("DeleteDogForOwner", new { ownerId, dogId }), "delete_dog_for_owner", "DELETE"));
+
+            return links;
+        }
+
+        private IDictionary<string, object> GetLinkedResourceToReturn(DogDto dogToReturn)
+        {
+            var links = CreateLinksForDogForOwner(dogToReturn.Id, dogToReturn.OwnerId);
+            var linkedResourceToReturn = dogToReturn.ShapeData(null) as IDictionary<string, object>;
+            linkedResourceToReturn.Add("links", links);
+
+            return linkedResourceToReturn;
         }
     }
 }

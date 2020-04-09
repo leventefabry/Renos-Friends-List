@@ -24,7 +24,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpHead]
-        [HttpGet]
+        [HttpGet(Name = "GetOwners")]
         public ActionResult<IEnumerable<OwnerDto>> GetOwners([FromQuery] OwnersResourceParameters parameters)
         {
             var ownersFromRepo = _ownerRepository.GetOwners(parameters);

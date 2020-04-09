@@ -16,15 +16,30 @@ namespace RenosFriendsList.API.Helpers
             int totalCount, int pageSize, int currentPage, int totalPages,
             string previousPageLink, string nextPageLink)
         {
-            var paginationMetadata = new
+
+            object paginationMetadata;
+            if (string.IsNullOrWhiteSpace(previousPageLink) && string.IsNullOrWhiteSpace(previousPageLink))
             {
-                totalCount,
-                pageSize,
-                currentPage,
-                totalPages,
-                previousPageLink,
-                nextPageLink
-            };
+                paginationMetadata = new
+                {
+                    totalCount,
+                    pageSize,
+                    currentPage,
+                    totalPages
+                };
+            }
+            else
+            {
+                paginationMetadata = new
+                {
+                    totalCount,
+                    pageSize,
+                    currentPage,
+                    totalPages,
+                    previousPageLink,
+                    nextPageLink
+                };
+            }
 
             response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
         }
