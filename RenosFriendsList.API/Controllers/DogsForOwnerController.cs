@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using RenosFriendsList.API.ActionConstraints;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Helpers;
 using RenosFriendsList.API.Models;
@@ -17,14 +20,17 @@ namespace RenosFriendsList.API.Controllers
         private readonly IOwnerRepository _ownerRepository;
         private readonly IDogRepository _dogRepository;
         private readonly IMapper _mapper;
+        private readonly IPropertyCheckerService _propertyCheckerService;
 
         public DogsForOwnerController(IOwnerRepository ownerRepository,
                               IDogRepository dogRepository,
-                              IMapper mapper)
+                              IMapper mapper,
+                              IPropertyCheckerService propertyCheckerService)
         {
             _ownerRepository = ownerRepository;
             _dogRepository = dogRepository;
             _mapper = mapper;
+            _propertyCheckerService = propertyCheckerService;
         }
 
         [HttpHead]
@@ -42,8 +48,24 @@ namespace RenosFriendsList.API.Controllers
 
         [HttpHead]
         [HttpGet("{dogId}", Name = "GetDogForOwner")]
-        public ActionResult<DogDto> GetDogForOwner(int ownerId, int dogId)
+        [Produces("application/json",
+            "application/vnd.marvin.hateoas+json",
+            "application/vnd.marvin.dogforowner.full+json",
+            "application/vnd.marvin.dogforowner.full.hateoas+json",
+            "application/vnd.marvin.dogforowner.primary+json",
+            "application/vnd.marvin.dogforowner.primary.hateoas+json")]
+        public ActionResult<DogDto> GetDogForOwner(int ownerId, int dogId, string fields, [FromHeader(Name = "Accept")]string mediaType)
         {
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
+            {
+                return BadRequest();
+            }
+
+            if (!_propertyCheckerService.TypeHasProperties<DogDto>(fields))
+            {
+                return BadRequest();
+            }
+
             if (!_ownerRepository.OwnerExists(ownerId))
             {
                 return NotFound();
@@ -55,10 +77,47 @@ namespace RenosFriendsList.API.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<DogDto>(dogForOwnerFromRepo));
+            var includeLinks =
+                parsedMediaType.SubTypeWithoutSuffix.EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
+            IEnumerable<LinkDto> links = new List<LinkDto>();
+            if (includeLinks)
+            {
+                links = CreateLinksForDogForOwner(dogId, dogForOwnerFromRepo.OwnerId, fields);
+            }
+
+            var primaryMediaType = includeLinks ?
+                parsedMediaType.SubTypeWithoutSuffix
+                    .Substring(0, parsedMediaType.SubTypeWithoutSuffix.Length - 8)
+                : parsedMediaType.SubTypeWithoutSuffix;
+
+            if (primaryMediaType == "vnd.marvin.dogforowner.primary")
+            {
+                var primaryResourceToReturn =
+                    _mapper.Map<DogPrimaryDto>(dogForOwnerFromRepo).ShapeData(fields) as IDictionary<string, object>;
+                if (includeLinks)
+                {
+                    primaryResourceToReturn.Add("links", links);
+                }
+
+                return Ok(primaryResourceToReturn);
+            }
+
+            var fullResourceToReturn = _mapper.Map<DogDto>(dogForOwnerFromRepo).ShapeData(fields) as IDictionary<string, object>;
+            if (includeLinks)
+            {
+                fullResourceToReturn.Add("links", links);
+            }
+
+            return Ok(fullResourceToReturn);
         }
 
         [HttpPost(Name = "CreateDogForOwner")]
+        [RequestHeaderMatchesMediaType("Content-Type",
+            "application/json",
+            "application/vnd.marvin.dogforcreation+json")]
+        [Consumes("application/json",
+            "application/vnd.marvin.dogforcreation+json")]
         public ActionResult<DogDto> CreateDogForOwner(int ownerId, DogForCreationDto dog)
         {
             if (!_ownerRepository.OwnerExists(ownerId))
@@ -70,7 +129,29 @@ namespace RenosFriendsList.API.Controllers
             _dogRepository.AddDog(ownerId, dogEntity);
 
             var dogToReturn = _mapper.Map<DogDto>(dogEntity);
-            var linkedResourceToReturn = GetLinkedResourceToReturn(dogToReturn);
+            var linkedResourceToReturn = GetLinkedResourceToReturn(dogToReturn, null);
+
+            return CreatedAtRoute("GetDogForOwner",
+                new { ownerId = linkedResourceToReturn["OwnerId"], dogId = linkedResourceToReturn["Id"] },
+                linkedResourceToReturn);
+        }
+
+        [HttpPost(Name = "CreateDogForOwnerWithDateOfBirth")]
+        [RequestHeaderMatchesMediaType("Content-Type",
+            "application/vnd.marvin.dogforcreationwithdateofbirth+json")]
+        [Consumes("application/vnd.marvin.dogforcreationwithdateofbirth+json")]
+        public ActionResult<DogDto> CreateDogForOwnerWithDateOfBirth(int ownerId, DogForCreationWithDateOfBirthDto dog)
+        {
+            if (!_ownerRepository.OwnerExists(ownerId))
+            {
+                return NotFound();
+            }
+
+            var dogEntity = _mapper.Map<Dog>(dog);
+            _dogRepository.AddDog(ownerId, dogEntity);
+
+            var dogToReturn = _mapper.Map<DogDto>(dogEntity);
+            var linkedResourceToReturn = GetLinkedResourceToReturn(dogToReturn, null);
 
             return CreatedAtRoute("GetDogForOwner",
                 new { ownerId = linkedResourceToReturn["OwnerId"], dogId = linkedResourceToReturn["Id"] },
@@ -149,11 +230,21 @@ namespace RenosFriendsList.API.Controllers
             return NoContent();
         }
 
-        private IEnumerable<LinkDto> CreateLinksForDogForOwner(int dogId, int ownerId)
+        private IEnumerable<LinkDto> CreateLinksForDogForOwner(int dogId, int ownerId, string fields)
         {
             var links = new List<LinkDto>();
-            links.Add(new LinkDto(Url.Link("GetDogForOwner", new { ownerId, dogId }), "self", "GET"));
+
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                links.Add(new LinkDto(Url.Link("GetDogForOwner", new { dogId, ownerId }), "self", "GET"));
+            }
+            else
+            {
+                links.Add(new LinkDto(Url.Link("GetDogForOwner", new { dogId, ownerId, fields }), "self", "GET"));
+            }
+
             links.Add(new LinkDto(Url.Link("GetDogsForOwner", new { ownerId }), "get_dogs_for_owner", "GET"));
+            links.Add(new LinkDto(Url.Link("CreateDogForOwnerWithDateOfBirth", new { ownerId }), "create_dog_for_owner_with_date_of_birth", "POST"));
             links.Add(new LinkDto(Url.Link("CreateDogForOwner", new { ownerId }), "create_dog_for_owner", "POST"));
             links.Add(new LinkDto(Url.Link("UpdateDogForOwner", new { ownerId, dogId }), "update_dog_for_owner", "PUT"));
             links.Add(new LinkDto(Url.Link("PartiallyUpdateDogForOwner", new { ownerId, dogId }), "partially_update_dog_for_owner", "PATCH"));
@@ -162,9 +253,9 @@ namespace RenosFriendsList.API.Controllers
             return links;
         }
 
-        private IDictionary<string, object> GetLinkedResourceToReturn(DogDto dogToReturn)
+        private IDictionary<string, object> GetLinkedResourceToReturn(DogDto dogToReturn, string fields)
         {
-            var links = CreateLinksForDogForOwner(dogToReturn.Id, dogToReturn.OwnerId);
+            var links = CreateLinksForDogForOwner(dogToReturn.Id, dogToReturn.OwnerId, fields);
             var linkedResourceToReturn = dogToReturn.ShapeData(null) as IDictionary<string, object>;
             linkedResourceToReturn.Add("links", links);
 

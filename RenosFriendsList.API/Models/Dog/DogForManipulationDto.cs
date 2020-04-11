@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using RenosFriendsList.API.Enums;
 
 namespace RenosFriendsList.API.Models.Dog
@@ -18,7 +17,5 @@ namespace RenosFriendsList.API.Models.Dog
 
         [Required]
         public GenderEnum Gender { get; set; }
-
-        public DateTime? DateOfBirth { get; set; }
     }
 }
