@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.Net.Http.Headers;
 using RenosFriendsList.API.Entities;
 using RenosFriendsList.API.Helpers;
@@ -17,6 +16,7 @@ namespace RenosFriendsList.API.Controllers
 {
     [ApiController]
     [Route("api/dogs")]
+    [ResponseCache(CacheProfileName = "240SecondsCacheProfile")]
     public class DogsController : ApiControllerBase
     {
         private readonly IDogRepository _dogRepository;
@@ -69,6 +69,7 @@ namespace RenosFriendsList.API.Controllers
         }
 
         [HttpHead]
+        [ResponseCache(Duration = 120)]
         [HttpGet("{dogId}", Name = "GetDog")]
         [Produces("application/json",
             "application/vnd.marvin.hateoas+json",
